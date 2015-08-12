@@ -2,15 +2,13 @@ vim:
     pkg.installed: []
 
 # Copy over custom vimrc
-/home/vagrant/.vimrc:
+~/.vimrc:
     file.managed:
         - source: salt://resources/vimrc
         - mode: 644
         - user: vagrant
         - require:
             - pkg: vim
-
-
 
 # Setup directory structure
 /home/vagrant/.vim/:
@@ -73,8 +71,8 @@ https://github.com/bling/vim-airline:
 
 # YouCompleteMe Settings
 cmake:
-    pkg:
-        - installed
+    archive.extracted:
+        - name: /tmp/cmake/
 
 https://github.com/Valloric/YouCompleteMe:
     git.latest:
@@ -84,6 +82,7 @@ https://github.com/Valloric/YouCompleteMe:
             - file: /home/vagrant/.vim/
             - file: /home/vagrant/.vim/bundle/
 
+# Remove other text editors so vim is default
 nano:
     pkg:
         - removed

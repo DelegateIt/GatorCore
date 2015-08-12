@@ -1,6 +1,9 @@
 git:
     pkg.installed
 
+ack-grep:
+    pkg.installed
+
 python-dev:
     pkg.installed
 
@@ -9,32 +12,22 @@ python-pip:
         - require:
             - pkg: python-dev
 
-mysql_setup:
-    debconf.set:
-        - name: mysql-server
-        - data:
-            'mysql-server/root_password': {'type': 'string', 'value': 'default'}
-            'mysql-server/root_password_again': {'type': 'string', 'value': 'default'}
-
-libmysqlclient-dev:
-    pkg:
-        - installed
-
-mysql-server:
-    pkg:
-        - installed
+nose:
+    pkg.installed:
         - require:
-            - debconf: mysql_setup
-            - pkg: python-dev
-            - pkg: libmysqlclient-dev
+            - pkg: python-pip
 
-MySQL-Python:
+enum:
+    pkg.installed:
+        - require:
+            - pkg: python-pip
+
+Flask:
     pip.installed:
         - require:
             - pkg: python-pip
-            - pkg: mysql-server
 
-sqlalchemy:
+boto:
     pip.installed:
         - require:
-            - pkg:  python-pip
+            -pkg: python-pip
