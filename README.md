@@ -1,2 +1,2 @@
 # GatorCore
-The core backend product for DelegateIt
+The core tools for DelegateIt developers
