@@ -22,8 +22,10 @@ Vagrant.configure(2) do |config|
     end
 
     config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: 'tcp'
+    config.vm.network "forwarded_port", guest: 8080, host: 8080, protocol: 'tcp'
 
     config.vm.synced_folder "./shared/api", "/var/gator/api", owner: "root", group: "root"
+    config.vm.synced_folder "./shared/web", "/var/gator/web", owner: "root", group: "root"
     config.vm.synced_folder "./", "/vagrant"
 
 end

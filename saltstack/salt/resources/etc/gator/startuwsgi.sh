@@ -2,12 +2,11 @@
 
 
 count=0
-while [ ! -e "/var/gator/api/rest_handler.py" ]
+while [ ! -e "/var/gator/api/wsgi.py" ]
 do
-        echo "Checking $checking"
         if [ $count == 10 ]
         then
-                echo "the file /var/gator/api/rest_handler.py does not exist"
+                echo "the file /var/gator/api/wsgi.py does not exist"
                 exit 1
         fi
 
@@ -15,6 +14,5 @@ do
         let "count += 1"
 done
 
-echo "Hurray"
 exec /usr/local/bin/uwsgi --ini /etc/gator/grest.ini
 
