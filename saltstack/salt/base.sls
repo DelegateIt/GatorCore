@@ -54,6 +54,13 @@ jsonpickle:
         - require:
             - pkg: python3-pip
 
+pip-stripe:
+    cmd.run:
+        - name: |
+            pip3 install --upgrade stripe
+        - require:
+            - pkg: python3-pip
+
 uwsgi:
     cmd.run:
         - name: |
@@ -133,11 +140,13 @@ grest-service:
     service.running:
         - enable: True
         - name: grest
+        - reload: True
 
 nginx-service:
   service.running:
     - name: nginx
     - enable: True
+    - reload: True
     - require:
         - pkg: nginx
 
