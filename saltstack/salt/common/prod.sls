@@ -26,41 +26,40 @@ gator-user:
 nginx:
     pkg.installed
 
-python3-dev:
+python-dev:
     pkg.installed
 
-python3-pip:
+python-pip:
     pkg.installed:
         - require:
-            - pkg: python3-dev
+            - pkg: python-dev
 
 Flask:
     cmd.run:
         - name: |
-            pip3 install --upgrade Flask
+            pip install --upgrade Flask
         - require:
-            - pkg: python3-pip
+            - pkg: python-pip
 
 boto:
     cmd.run:
         - name: |
-            pip3 install --upgrade boto
+            pip install --upgrade boto
         - require:
-            - pkg: python3-pip
+            - pkg: python-pip
 jsonpickle:
     cmd.run:
         - name: |
-            pip3 install --upgrade jsonpickle
+            pip install --upgrade jsonpickle
         - require:
-            - pkg: python3-pip
+            - pkg: python-pip
 
-uwsgi:
+flask-socketio:
     cmd.run:
         - name: |
-            pip3 install --upgrade uwsgi
+            pip install --upgrade flask-socketio
         - require:
-            - pkg: python3-pip
-
+            - pkg: python-pip
 
 ###################
 # File management #
