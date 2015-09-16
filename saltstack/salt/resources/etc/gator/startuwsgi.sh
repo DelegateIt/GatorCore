@@ -16,5 +16,5 @@ do
 done
 
 echo "Hurray"
-exec /usr/local/bin/uwsgi --ini /etc/gator/grest.ini
+exec /var/gator/api/wsgi.py
 
