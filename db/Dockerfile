@@ -15,7 +15,7 @@ EXPOSE 8040
 
 ADD source /var/gator/db
 WORKDIR /var/gator/db
-ADD http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz dynamo.tar.gz
+COPY dynamodb_local_2015-07-16_1.0.tar.gz dynamo.tar.gz
 RUN tar -xzf dynamo.tar.gz
 
 RUN chown -R gator:gator /var/gator/db
