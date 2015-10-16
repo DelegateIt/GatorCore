@@ -61,7 +61,7 @@ def create_tables():
         ],
         connection=conn
     )
-    Table.create("DelegateIt_Handlers", schema=[HashKey("transaction_uuid")], connection=conn)
+    Table.create("DelegateIt_Handlers", schema=[HashKey("ip_address")], connection=conn)
 
 if __name__ == "__main__":
     create_tables()
