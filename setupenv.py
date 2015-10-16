@@ -20,7 +20,7 @@ def kill_and_delete(name):
 def create_image(name, source):
     execute_no_fail(["docker", "build", "-t", name, source])
 
-def create_container(name, image, ports=None, volumes=None, links=None, tty=False):
+def create_container(name, image, ports=None, volumes=None, links=None, tty=False, net="bridge"):
     command = ["docker", "create", "--name", name]
     if ports:
         for p in ports:
@@ -33,6 +33,7 @@ def create_container(name, image, ports=None, volumes=None, links=None, tty=Fals
             command.extend(["--link", link])
     if tty:
         command.append("-t")
+    command.append("--net=" + net)
     command.append(image)
     execute(command)
 
@@ -42,7 +43,16 @@ def setup_api_container(volume):
     create_container("api", "gatapi",
             ports=[[8000, 8000]],
             volumes=[[volume, "/var/gator/api"]],
-            links=["db"])
+            net="host")
+
+def setup_ntfy_container(volume):
+    kill_and_delete("ntfy")
+    create_image("gatntfy", "notify")
+    create_container("ntfy", "gatntfy",
+            ports=[[8060, 8060]],
+            volumes=[[volume, "/var/gator/api"]],
+            tty=True,
+            net="host")
 
 def setup_db_container():
     kill_and_delete("db")
@@ -58,7 +68,7 @@ def setup_delgt_container(volume):
             tty=True)
 
 if __name__ == "__main__":
-    containers = ["api", "db", "delgt"]
+    containers = ["api", "db", "delgt", "ntfy"]
     parser = argparse.ArgumentParser(description="docker enviroment setup for DelegateIt")
     parser.add_argument("name",
             help="the name of the container to create. Valid options are " + str(containers))
@@ -87,8 +97,11 @@ if __name__ == "__main__":
     if args.name == "api":
         setup_db_container()
         setup_api_container(abs_source)
+        setup_ntfy_container(abs_source)
     elif args.name == "delgt":
         setup_delgt_container(abs_source)
     elif args.name == "db":
         setup_db_container()
+    elif args.name == "ntfy":
+        setup_ntfy_container(abs_source)
 
