@@ -5,7 +5,8 @@ This repo is responsible for the setup of the production/test environment of the
 The general work flow for setting up the environment is this:
  1. Install Docker
  2. Clone this repo then `cd` into it
- 3. run `setupenv.py api /path/to/api/source/code` to create the docker image and container for the api
+ 3. run `setupenv.py db` to create the docker iamge and container for the database
+ 4. run `setupenv.py api /path/to/api/source/code` to create the docker image and container for the api
 
 To start the api run:
 ```
@@ -24,7 +25,7 @@ The port mappings are as follows: 8000 for the api, 8040 for the db, and 8080 fo
 For the `delg` and `api` containers, both required a path to their respective source code. When those files change on the host, they are immediatly reflected in the docker container. If for some reason you need to find those files from within the docker container, they are located in `/var/gator`.
 
 ### Extras
-sometimes it's neccessary to ssh into a container just to see what's going on. Unfortunately there is no easy command to do that but this works fine `docker exec -t -i <container_name> /bin/bash`
+Sometimes it's neccessary to get a shell in a container and this command can be used `docker exec -t -i <container_name> /bin/bash`
 
 To list all the containers and some info about them run `docker ps -a`.
 

@@ -95,9 +95,7 @@ if __name__ == "__main__":
             exit(1)
 
     if args.name == "api":
-        setup_db_container()
         setup_api_container(abs_source)
-        setup_ntfy_container(abs_source)
     elif args.name == "delgt":
         setup_delgt_container(abs_source)
     elif args.name == "db":
