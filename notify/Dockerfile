@@ -19,7 +19,7 @@ RUN useradd --gid 4000 --no-create-home gator
 
 EXPOSE 8060
 
-ENV GATOR_PRODUCTION=false
+ENV GATOR_CONFIG_PATH=/var/gator/api/local-config.json
 
 USER gator
 WORKDIR /var/gator/api/notify
