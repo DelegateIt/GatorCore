@@ -47,5 +47,6 @@ ADD source /var/gator/api
 
 ENV GATOR_CONFIG_PATH=/var/gator/api/local-config.json
 
+WORKDIR /var/gator/api
 USER gator
 ENTRYPOINT ["python2.7", "/var/gator/api/wsgi.py", "--port", "8000"]
