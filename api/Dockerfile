@@ -20,7 +20,8 @@ RUN pip install --upgrade\
 
 RUN pip install\
     Flask\
-    Flask-SocketIO\
+    gevent\
+    gunicorn\
     jsonpickle\
     requests\
     stripe\
@@ -49,4 +50,4 @@ ENV GATOR_CONFIG_PATH=/var/gator/api/local-config.json
 
 WORKDIR /var/gator/api
 USER gator
-ENTRYPOINT ["python2.7", "/var/gator/api/wsgi.py", "--port", "8000"]
+ENTRYPOINT ["gunicorn", "--access-logfile", "-", "--error-logfile", "-", "-b", "0.0.0.0:8000", "--reload", "--worker-class", "gevent", "wsgi:app"]
