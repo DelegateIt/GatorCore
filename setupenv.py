@@ -64,8 +64,7 @@ def setup_delgt_container(volume):
     create_image("gatdelgt", "delegator")
     create_container("delgt", "gatdelgt",
             ports=[[8080, 8080]],
-            volumes=[[volume, "/var/gator/delegator"]],
-            tty=True)
+            volumes=[[volume, "/var/gator/delegator"]])
 
 if __name__ == "__main__":
     containers = ["api", "db", "delgt", "ntfy"]

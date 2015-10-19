@@ -1,14 +1,20 @@
 FROM ubuntu:14.04
 MAINTAINER Austin Middleton
 
-RUN addgroup --gid 4000 gator
-RUN useradd --gid 4000 --no-create-home gator
+RUN apt-get update
+RUN apt-get install -y nginx
 
-EXPOSE 8080
 
+ADD delegator-site.conf /etc/nginx/sites-enabled/
+RUN rm /etc/nginx/sites-enabled/default
 ADD source /var/gator/delegator
 
-USER gator
+
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
+
+EXPOSE 8080
 WORKDIR /var/gator/delegator
-ENTRYPOINT ["python3.4", "/var/gator/delegator/startserver.py", "--port", "8080"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
