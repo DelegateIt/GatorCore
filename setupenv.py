@@ -57,14 +57,17 @@ def setup_ntfy_container(volume):
 def setup_db_container():
     kill_and_delete("db")
     create_image("gatdb", "db")
-    create_container("db", "gatdb", ports=[[8040, 8040]])
+    create_container("db", "gatdb",
+            ports=[[8040, 8040]],
+            net="host")
 
 def setup_delgt_container(volume):
     kill_and_delete("delgt")
     create_image("gatdelgt", "delegator")
     create_container("delgt", "gatdelgt",
             ports=[[8080, 8080]],
-            volumes=[[volume, "/var/gator/delegator"]])
+            volumes=[[volume, "/var/gator/delegator"]],
+            net="host")
 
 if __name__ == "__main__":
     containers = ["api", "db", "delgt", "ntfy"]
