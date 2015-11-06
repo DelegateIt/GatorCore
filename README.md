@@ -28,7 +28,7 @@ The port mappings are as follows: 8000 for the api, 8040 for the db, and 8080 fo
 For the `delg` and `api` containers, both required a path to their respective source code. When those files change on the host, they are immediatly reflected in the docker container. If for some reason you need to find those files from within the docker container, they are located in `/var/gator`.
 
 ### Extras
-Sometimes it's neccessary to get a shell in a container and this command can be used `docker exec -t -i <container_name> /bin/bash`
+Sometimes it's neccessary to get a shell in a container and this command can be used `docker exec -t -i <container_name> /bin/bash`. You might notice that by default you won't have sudo access since the default user has no password. If you need root access pass the `-u root` argument into docker exec like this `docker exec -t -i -u root <container_name> /bin/bash`
 
 To list all the containers and some info about them run `docker ps -a`.
 
