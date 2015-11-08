@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import os
 from boto.dynamodb2.table import Table
@@ -33,6 +33,9 @@ def create_tables():
             GlobalAllIndex("phone_number-index", parts=[
                 HashKey("phone_number"),
             ]),
+            GlobalAllIndex("fbuser_id-index", parts=[
+                HashKey("fbuser_id"),
+            ]),
         ],
         connection=conn
     )
@@ -46,6 +49,9 @@ def create_tables():
             ]),
             GlobalAllIndex("email-index", parts=[
                 HashKey("email"),
+            ]),
+            GlobalAllIndex("fbuser_id-index", parts=[
+                HashKey("fbuser_id"),
             ]),
         ],
         connection=conn
