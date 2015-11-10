@@ -21,7 +21,8 @@ RUN pip install\
     jsonpickle\
     requests\
     stripe\
-    twilio
+    twilio\
+    nose
 
 ##################
 # Configurations #

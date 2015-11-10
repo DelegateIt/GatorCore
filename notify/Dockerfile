@@ -12,7 +12,7 @@ RUN apt-get install -y nodejs
 RUN ln -s /usr/bin/python2.7 /usr/bin/python
 
 ADD source /var/gator/api
-RUN npm install -g aws-sdk socket.io express body-parser
+RUN npm install -g aws-sdk socket.io express body-parser socket.io-client
 
 RUN addgroup --gid 4000 gator
 RUN useradd --gid 4000 --no-create-home gator
