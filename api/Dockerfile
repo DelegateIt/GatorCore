@@ -1,35 +1,20 @@
-FROM ubuntu:14.04
+FROM gatbase
 MAINTAINER Austin Middleton
-
-RUN apt-get update
 
 #######################
 # Production packages #
 #######################
 
-RUN apt-get install -y python3-pip
-
-#pip is installed but needs to upgraded because the apt repo is behind
-RUN pip3 install --upgrade pip
-
-#the upgrade version of pip runs as `pip` NOT `pip3`
 RUN pip install\
-    boto\
     Flask\
     eventlet\
     gunicorn\
-    jsonpickle\
-    requests\
     stripe\
-    twilio\
-    nose
+    twilio
 
 ##################
 # Configurations #
 ##################
-
-RUN addgroup --gid 4000 gator
-RUN useradd --gid 4000 --no-create-home gator
 
 EXPOSE 8000
 
