@@ -2,6 +2,7 @@ FROM ubuntu:14.04
 MAINTAINER Austin Middleton
 
 RUN apt-get update
+RUN apt-get upgrade -y
 
 #######################
 # Production packages #
