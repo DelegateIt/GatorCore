@@ -96,7 +96,6 @@ if __name__ == "__main__":
             print("\n\n'{}' is not a directory".format(abs_source))
             exit(1)
 
-    create_image("gatbase", "base")
     if args.name == "api":
         setup_api_container(abs_source)
     elif args.name == "delgt":
