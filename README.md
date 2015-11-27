@@ -4,6 +4,8 @@ This repo is responsible for the setup of the production/test environment of the
 #### Aside for mac and windoze users
 Setting up docker in these environments is a little different since docker relies on features in the linux kernel to work properly. Docker should be installed using the Docker Toolkit which will create a linux vm for you then it'll run docker inside the vm. Since the vm uses a different network stack than the host, you cannot connect to the docker containers through `localhost`. Instead you must use the ip of the vm or port forward from `localhost` to the vm (which can be done easily through the vm's config gui). If you're using Windows™®, the system probably won't work at all, which should be the least of worries since your'e using Windows™®.
 
+NOTE: if you don't have internet access from the container you will need to get a shell and replace the default DNS entry in /etc/resolv.conf to Google's DNS (8.8.8.8)
+
 ## Setup
 The general work flow for setting up the environment is this:
  1. Install Docker
