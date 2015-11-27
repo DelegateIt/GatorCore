@@ -21,8 +21,12 @@ class Create(object):
        execute(["docker", "rm", "-f", name])
 
     @staticmethod
-    def create_image(name, source):
-        execute_no_fail(["docker", "build", "-t", name, source])
+    def create_image(name, source, no_cache):
+        args = ["docker", "build", "-t", name]
+        if no_cache:
+            args.append("--no-cache")
+        args.append(source)
+        execute_no_fail(args)
 
     @staticmethod
     def create_container(name, image, ports=None, volumes=None, links=None, tty=False, net="bridge"):
@@ -43,18 +47,18 @@ class Create(object):
         execute(command)
 
     @staticmethod
-    def setup_api_container(volume):
+    def setup_api_container(volume, no_cache):
         Create.kill_and_delete("api")
-        Create.create_image("gatapi", "api")
+        Create.create_image("gatapi", "api", no_cache)
         Create.create_container("api", "gatapi",
                 ports=[[8000, 8000]],
                 volumes=[[volume, "/var/gator/api"]],
                 net="host")
 
     @staticmethod
-    def setup_ntfy_container(volume):
+    def setup_ntfy_container(volume, no_cache):
         Create.kill_and_delete("ntfy")
-        Create.create_image("gatntfy", "notify")
+        Create.create_image("gatntfy", "notify", no_cache)
         Create.create_container("ntfy", "gatntfy",
                 ports=[[8060, 8060]],
                 volumes=[[volume, "/var/gator/api"]],
@@ -62,9 +66,9 @@ class Create(object):
                 net="host")
 
     @staticmethod
-    def setup_db_container():
+    def setup_db_container(no_cache):
         Create.kill_and_delete("db")
-        Create.create_image("gatdb", "db")
+        Create.create_image("gatdb", "db", no_cache)
         Create.create_container("db", "gatdb",
                 ports=[[8040, 8040]],
                 net="host")
@@ -72,7 +76,7 @@ class Create(object):
     @staticmethod
     def setup_delgt_container(volume):
         Create.kill_and_delete("delgt")
-        Create.create_image("gatdelgt", "delegator")
+        Create.create_image("gatdelgt", "delegator", no_cache)
         Create.create_container("delgt", "gatdelgt",
                 ports=[[8080, 8080]],
                 volumes=[[volume, "/var/gator/delegator"]],
@@ -84,8 +88,10 @@ class Create(object):
         parser = argparse.ArgumentParser(description="docker container and image creation for DelegateIt")
         parser.add_argument("name",
                 help="the name of the container to create. Valid options are " + str(containers))
+        parser.add_argument("--no-cache", default=False, action="store_true", dest="no_cache",
+                help="Do not use docker's cache when building images.")
         parser.add_argument("source", nargs="?", default="",
-            help="the location of the project's source code. Required for all except for the `db` container")
+                help="the location of the project's source code. Required for all except for the `db` container")
         args = parser.parse_args()
 
         if not args.name in containers:
@@ -107,13 +113,13 @@ class Create(object):
                 exit(1)
 
         if args.name == "api":
-            Create.setup_api_container(abs_source)
+            Create.setup_api_container(abs_source, args.no_cache)
         elif args.name == "delgt":
-            Create.setup_delgt_container(abs_source)
+            Create.setup_delgt_container(abs_source, args.no_cache)
         elif args.name == "db":
-            Create.setup_db_container()
+            Create.setup_db_container(args.no_cache)
         elif args.name == "ntfy":
-            Create.setup_ntfy_container(abs_source)
+            Create.setup_ntfy_container(abs_source, args.no_cache)
 
 
 if __name__ == "__main__":
@@ -136,5 +142,3 @@ if __name__ == "__main__":
     del sys.argv[1]
     sys.argv[0] += " " + args.action
     actions[action_name]["parse"]()
-
-
