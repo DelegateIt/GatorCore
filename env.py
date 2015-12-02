@@ -36,7 +36,7 @@ class Create(object):
                 command.extend(["-p", str(p[0]) + ":" + str(p[1])])
         if volumes:
             for v in volumes:
-                command.extend(["-v", v[0] + ":" + v[1] + ":ro"])
+                command.extend(["-v", v[0] + ":" + v[1]])
         if links:
             for link in links:
                 command.extend(["--link", link])
