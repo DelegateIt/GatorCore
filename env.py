@@ -74,7 +74,7 @@ class Create(object):
                 net="host")
 
     @staticmethod
-    def setup_delgt_container(volume):
+    def setup_delgt_container(volume, no_cache):
         Create.kill_and_delete("delgt")
         Create.create_image("gatdelgt", "delegator", no_cache)
         Create.create_container("delgt", "gatdelgt",
