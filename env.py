@@ -12,7 +12,7 @@ def execute_no_fail(command):
 
 def execute(command):
     print("EXECUTING {}".format(command))
-    return subprocess.call(command, stdin=sys.stdin, stdout=sys.stdout, shell=True)
+    return subprocess.call(" ".join(command), stdin=sys.stdin, stdout=sys.stdout, shell=True)
 
 class Create(object):
 
