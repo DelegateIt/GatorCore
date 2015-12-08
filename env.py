@@ -5,6 +5,9 @@ import argparse
 import subprocess
 import sys
 
+USE_DOCKER_IO = False
+DOCKER_COMMAND = "docker.io" if USE_DOCKER_IO else "docker"
+
 def execute_no_fail(command):
     return_code = execute(command)
     if return_code != 0:
@@ -12,17 +15,20 @@ def execute_no_fail(command):
 
 def execute(command):
     print("EXECUTING {}".format(command))
-    return subprocess.call(" ".join(command), stdin=sys.stdin, stdout=sys.stdout, shell=True)
+    if USE_DOCKER_IO:
+        return subprocess.call(command, stdin=sys.stdin, stdout=sys.stdout)
+    else:
+        return subprocess.call(" ".join(command), stdin=sys.stdin, stdout=sys.stdout, shell=True)
 
 class Create(object):
 
     @staticmethod
     def kill_and_delete(name):
-       execute(["docker", "rm", "-f", name])
+       execute([DOCKER_COMMAND, "rm", "-f", name])
 
     @staticmethod
     def create_image(name, source, no_cache):
-        args = ["docker", "build", "-t", name]
+        args = [DOCKER_COMMAND, "build", "-t", name]
         if no_cache:
             args.append("--no-cache")
         args.append(source)
@@ -30,7 +36,7 @@ class Create(object):
 
     @staticmethod
     def create_container(name, image, ports=None, volumes=None, links=None, tty=False, net="bridge"):
-        command = ["docker", "create", "--name", name]
+        command = [DOCKER_COMMAND, "create", "--name", name]
         if ports:
             for p in ports:
                 command.extend(["-p", str(p[0]) + ":" + str(p[1])])
