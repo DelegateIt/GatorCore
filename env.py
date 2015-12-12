@@ -20,6 +20,46 @@ def execute(command):
     else:
         return subprocess.call(" ".join(command), stdin=sys.stdin, stdout=sys.stdout, shell=True)
 
+class Start(object):
+
+    @staticmethod
+    def start_container(name):
+        print("Starting {} container".format(name))
+        return execute_no_fail([DOCKER_COMMAND, "start", name])
+
+    @staticmethod
+    def start_api_env():
+        Start.start_container("db")
+        Start.start_container("api")
+        Start.start_container("ntfy")
+        print("\nThe api is accessible from port 8000 and socket.io from 8060")
+
+    @staticmethod
+    def parse_args():
+        parser = argparse.ArgumentParser(description="Starts the api environment")
+        parser.parse_args()
+        Start.start_api_env()
+
+class Stop(object):
+
+    @staticmethod
+    def stop_container(name, time_till_kill=3):
+        print("Stopping {} container".format(name))
+        return execute_no_fail([DOCKER_COMMAND, "stop", "-t", str(time_till_kill), name])
+
+    @staticmethod
+    def stop_api_env():
+        Stop.stop_container("ntfy")
+        Stop.stop_container("api")
+        Stop.stop_container("db")
+
+    @staticmethod
+    def parse_args():
+        parser = argparse.ArgumentParser(description="Stops the api environment")
+        parser.parse_args()
+        Stop.stop_api_env()
+
+
 class Create(object):
 
     @staticmethod
@@ -90,20 +130,15 @@ class Create(object):
 
     @staticmethod
     def parse_args():
-        containers = ["api", "db", "delgt", "ntfy"]
+        containers = ["api", "db", "delgt", "ntfy", "fullapi"]
         parser = argparse.ArgumentParser(description="docker container and image creation for DelegateIt")
-        parser.add_argument("name",
-                help="the name of the container to create. Valid options are " + str(containers))
+        parser.add_argument("name", choices=containers,
+                help="the name of the container to create.")
         parser.add_argument("--no-cache", default=False, action="store_true", dest="no_cache",
                 help="Do not use docker's cache when building images.")
-        parser.add_argument("source", nargs="?", default="",
+        parser.add_argument("source", default="", nargs="?",
                 help="the location of the project's source code. Required for all except for the `db` container")
         args = parser.parse_args()
-
-        if not args.name in containers:
-            parser.print_help()
-            print("\n\n'{}' is not a valid container name. Must be one of these {}", args.name, containers)
-            exit(1)
 
         if args.name != "db" and args.source == "":
             parser.print_help()
@@ -118,14 +153,14 @@ class Create(object):
                 print("\n\n'{}' is not a directory".format(abs_source))
                 exit(1)
 
-        if args.name == "api":
+        if args.name == "api" or args.name == "fullapi":
             Create.setup_api_container(abs_source, args.no_cache)
-        elif args.name == "delgt":
-            Create.setup_delgt_container(abs_source, args.no_cache)
-        elif args.name == "db":
+        if args.name == "db" or args.name == "fullapi":
             Create.setup_db_container(args.no_cache)
-        elif args.name == "ntfy":
+        if args.name == "ntfy" or args.name == "fullapi":
             Create.setup_ntfy_container(abs_source, args.no_cache)
+        if args.name == "delgt":
+            Create.setup_delgt_container(abs_source, args.no_cache)
 
 
 if __name__ == "__main__":
@@ -133,12 +168,20 @@ if __name__ == "__main__":
         "create": {
             "parse": Create.parse_args,
             "description": "create the docker containers and images"
+        },
+        "start": {
+            "parse": Start.parse_args,
+            "description": "Starts the api environment"
+        },
+        "stop": {
+            "parse": Stop.parse_args,
+            "description": "Stops the api environment"
         }
     }
     parser = argparse.ArgumentParser(
             description="Helps setup and control the environents for DelegateIt. Possible actions include: " +
             ". ".join([k + " - " + v["description"] for k,v in actions.items()]))
-    parser.add_argument("action", help="The action to perform. Must be one of these: " + ",".join(actions.keys()))
+    parser.add_argument("action", choices=actions.keys(), help="The action to perform.")
     parser.add_argument('args', nargs=argparse.REMAINDER,
             help="A list of arguments to pass to the action")
 

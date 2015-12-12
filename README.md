@@ -1,33 +1,25 @@
 # GatorCore
-This repo is responsible for the setup of the production/test environment of the backend api and delegator web server. The environment is setup using Docker so everyone will need that installed.
+This repo is responsible for the setup of the production/test environment of the backend api and delegator web server. The environment is setup using Docker so you will need that installed.
 
 #### Aside for mac and windoze users
-Setting up docker in these environments is a little different since docker relies on features in the linux kernel to work properly. Docker should be installed using the Docker Toolkit which will create a linux vm for you then it'll run docker inside the vm. Since the vm uses a different network stack than the host, you cannot connect to the docker containers through `localhost`. Instead you must use the ip of the vm or port forward from `localhost` to the vm (which can be done easily through the vm's config gui). If you're using Windows™®, the system probably won't work at all, which should be the least of worries since your'e using Windows™®.
-
-NOTE: if you don't have internet access from the container you will need to get a shell and replace the default DNS entry in /etc/resolv.conf to Google's DNS (8.8.8.8)
+Setting up docker in these environments is a little different since docker relies on features in the linux kernel to work properly. Docker should be installed using the [Docker Toolbox](https://www.docker.com/docker-toolbox) which will create a linux vm for you then it'll run docker inside the vm. The Toolbox comes with a program called "Docker Quickstart Terminal" that will open your default shell and configure it with the correct environment variables for docker to work. It also ensures your linux vm is configured and running. All the below commands should be run inside the terminal that "Docker Quickstart Termainal" opens.
 
 ## Setup
 The general work flow for setting up the environment is this:
- 1. Install Docker
+ 1. Install Docker or the Docker Toolbox if you use a mac
  2. Clone this repo then `cd` into it
- 3. run `env.py create db` to create the docker iamge and container for the database
- 4. run `env.py create api /path/to/api/source/code` to create the docker image and container for the api
+ 3. run `env.py create fullapi /path/to/api/source/code` to create the neccessary docker containers to run the api. The directory for the source of the OrderApi should be provided as an argument.
 
-To start the api run:
-```
-docker start -a db
-docker start -a api
-```
-This will start the database container then the api container. It's important to start the database container first since the api container is dependent on the database.
-
-To stop a container use `docker stop <container_name>`. A stopped container can be started agian using the above start command. All file state is saved across restarts. In order to start from scratch or update the image/container, the `env.py` script has to be rerun.
-
-The delegator web server image/container can also be created by running `env.py delgt /path/to/delegator/source/code`
+To stat the api run `env.py start`. To stop it run `env.py stop`. The environment can be started again using the 'start' action without having to re-run the 'create' action. All file state is saved across restarts. In order to start from scratch or update the image/container, the 'create' action must be re-run.
 
 ### Meta
-The port mappings are as follows: 8000 for the api, 8040 for the db, and 8080 for the delegator web server.
+Port mappings:
+ * 8000: Flask API
+ * 8040: DB
+ * 8060: Socket.io
 
-For the `delgt` and `api` containers, both required a path to their respective source code. When those files change on the host, they are immediatly reflected in the docker container. If for some reason you need to find those files from within the docker container, they are located in `/var/gator`.
+
+ The ip address for the docker containers is `127.0.0.1` on linux and for macs it is whatever ip your vm is assigned. The "Docker Quickstart Terminal" will print out this ip when it is opened. Alternatively, the command `docker-machine ip default` will print out the ip.
 
 ### Extras
 Sometimes it's neccessary to get a shell in a container and this command can be used `docker exec -t -i <container_name> /bin/bash`. You might notice that by default you won't have sudo access since the default user has no password. If you need root access pass the `-u root` argument into docker exec like this `docker exec -t -i -u root <container_name> /bin/bash`
@@ -35,3 +27,6 @@ Sometimes it's neccessary to get a shell in a container and this command can be 
 To list all the containers and some info about them run `docker ps -a`.
 
 There are a lot of other useful things docker can do and some of them are listed in the `docker --help` output.
+
+### Troubleshooting
+If you don't have internet access from the container you will need to get a shell and replace the default DNS entry in /etc/resolv.conf to Google's DNS (8.8.8.8)
