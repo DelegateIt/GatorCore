@@ -95,8 +95,8 @@ class Create(object):
     @staticmethod
     def setup_api_container(volume, no_cache):
         Create.kill_and_delete("api")
-        Create.create_image("gatapi", "api", no_cache)
-        Create.create_container("api", "gatapi",
+        Create.create_image("delegateit/gatapi", "api", no_cache)
+        Create.create_container("api", "delegateit/gatapi",
                 ports=[[8000, 8000]],
                 volumes=[[volume, "/var/gator/api"]],
                 net="host")
@@ -104,8 +104,8 @@ class Create(object):
     @staticmethod
     def setup_ntfy_container(volume, no_cache):
         Create.kill_and_delete("ntfy")
-        Create.create_image("gatntfy", "notify", no_cache)
-        Create.create_container("ntfy", "gatntfy",
+        Create.create_image("delegateit/gatntfy", "notify", no_cache)
+        Create.create_container("ntfy", "delegateit/gatntfy",
                 ports=[[8060, 8060]],
                 volumes=[[volume, "/var/gator/api"]],
                 tty=True,
