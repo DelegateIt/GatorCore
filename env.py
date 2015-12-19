@@ -4,21 +4,19 @@ import os
 import argparse
 import subprocess
 import sys
+import tempfile
 
 USE_DOCKER_IO = False
 DOCKER_COMMAND = "docker.io" if USE_DOCKER_IO else "docker"
 
-def execute_no_fail(command):
-    return_code = execute(command)
+def execute_no_fail(command, *args, **kwargs):
+    return_code = execute(command, *args, **kwargs)
     if return_code != 0:
         raise Exception("The command {} returned {}".format(command, return_code))
 
-def execute(command):
-    print("EXECUTING {}".format(command))
-    if USE_DOCKER_IO:
-        return subprocess.call(command, stdin=sys.stdin, stdout=sys.stdout)
-    else:
-        return subprocess.call(" ".join(command), stdin=sys.stdin, stdout=sys.stdout, shell=True)
+def execute(command, cwd=None, shell=False):
+    print("EXECUTING:", " ".join(command))
+    return subprocess.Popen(command, cwd=cwd, shell=shell).wait()
 
 class Start(object):
 
@@ -163,6 +161,37 @@ class Create(object):
         if args.name == "delgt":
             Create.setup_delgt_container(abs_source, args.no_cache)
 
+class Package(object):
+    @staticmethod
+    def package_env(apisource, delgtsource, config, outfile):
+        with tempfile.TemporaryDirectory() as tempdir:
+            execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
+            # execute(["rm", "-rf", os.path.join(tempdir, "apisource", ".git")])
+            # execute(["rm", "-rf", os.path.join(tempdir, "delgtsource", ".git")])
+            execute_no_fail(["cp", "-R", delgtsource, os.path.join(tempdir, "delgtsource")])
+            execute_no_fail(["cp", config,
+                    os.path.join(tempdir, "apisource", "aws-prod-config.json")])
+            execute_no_fail(["cp", "Dockerrun.aws.json", tempdir])
+            execute_no_fail(["zip", "-rJ", os.path.join(os.getcwd(), outfile),
+                    "apisource",
+                    "delgtsource",
+                    "Dockerrun.aws.json",
+                    "-x", "*/.git/*", "*/__pycache__/*"], cwd=tempdir)
+
+    @staticmethod
+    def parse_args():
+        parser = argparse.ArgumentParser(
+                description="Packages the environment for elastic beanstalk in a zip")
+        parser.add_argument("-a", "--api", required=True,
+                help="The source directory for the api")
+        parser.add_argument("-d", "--delegator", required=True,
+                help="The source directory for the delegator server")
+        parser.add_argument("-c", "--config", required=True,
+                help="The config file to use")
+        parser.add_argument("-o", "--output", required=True,
+                help="The name of the packaged zip file")
+        args = parser.parse_args()
+        Package.package_env(args.api, args.delegator, args.config, args.output)
 
 if __name__ == "__main__":
     actions = {
@@ -177,6 +206,10 @@ if __name__ == "__main__":
         "stop": {
             "parse": Stop.parse_args,
             "description": "Stops the api environment"
+        },
+        "package": {
+            "parse": Package.parse_args,
+            "description": "Packages the environment for elastic beanstalk in a zip"
         }
     }
     parser = argparse.ArgumentParser(
