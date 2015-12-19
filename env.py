@@ -153,6 +153,7 @@ class Create(object):
                 print("\n\n'{}' is not a directory".format(abs_source))
                 exit(1)
 
+        Create.create_image("delegateit/gatbase", "base", args.no_cache)
         if args.name == "api" or args.name == "fullapi":
             Create.setup_api_container(abs_source, args.no_cache)
         if args.name == "db" or args.name == "fullapi":
