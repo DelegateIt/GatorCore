@@ -38,7 +38,11 @@
           "containerPath": "/var/gator/api",
           "readOnly": true
         }
-      ]
+      ],
+      "authentication": {
+        "bucket": "gator-secrets",
+        "key": "docker-auth-config.json"
+      }
     },
     {
       "name": "ntfy",
@@ -63,7 +67,11 @@
           "containerPath": "/var/gator/api",
           "readOnly": true
         }
-      ]
+      ],
+      "authentication": {
+        "bucket": "gator-secrets",
+        "key": "docker-auth-config.json"
+      }
     },
     {
       "name": "delgt",
@@ -82,7 +90,11 @@
           "containerPath": "/var/gator/delegator",
           "readOnly": true
         }
-      ]
+      ],
+      "authentication": {
+        "bucket": "gator-secrets",
+        "key": "docker-auth-config.json"
+      }
     },
   ]
 }
