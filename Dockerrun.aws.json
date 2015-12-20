@@ -28,7 +28,7 @@
       "memory": 256,
       "portMappings": [
         {
-          "hostPort": 8000,
+          "hostPort": 80,
           "containerPort": 8000
         }
       ],
@@ -95,6 +95,6 @@
         "bucket": "gator-secrets",
         "key": "docker-auth-config.json"
       }
-    },
+    }
   ]
 }
