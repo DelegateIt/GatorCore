@@ -126,8 +126,8 @@ class Create(object):
     @staticmethod
     def setup_delgt_container(volume, no_cache):
         Create.kill_and_delete("delgt")
-        Create.create_image("gatdelgt", "delegator", no_cache)
-        Create.create_container("delgt", "gatdelgt",
+        Create.create_image("delegateit/gatdelgt", "delegator", no_cache)
+        Create.create_container("delgt", "delegateit/gatdelgt",
                 ports=[[8080, 8080]],
                 volumes=[[volume, "/var/gator/delegator"]],
                 net="host")
@@ -199,6 +199,23 @@ class Package(object):
         args = parser.parse_args()
         Package.package_env(args.api, args.delegator, args.config, args.output)
 
+class DockerPush(object):
+    @staticmethod
+    def docker_push_list(image_list):
+        for image in image_list:
+            execute_no_fail([DOCKER_COMMAND, "push", image])
+
+    @staticmethod
+    def parse_args():
+        parser = argparse.ArgumentParser(
+                description="Pushes all the production images to docker hub")
+        DockerPush.docker_push_list([
+                "delegateit/gatbase",
+                "delegateit/gatapi",
+                "delegateit/gatntfy",
+                "delegateit/gatdelgt"])
+
+
 if __name__ == "__main__":
     actions = {
         "create": {
@@ -216,6 +233,10 @@ if __name__ == "__main__":
         "package": {
             "parse": Package.parse_args,
             "description": "Packages the environment for elastic beanstalk in a zip"
+        },
+        "dockerpush": {
+            "parse": DockerPush.parse_args,
+            "description": "Pushes all the production images to docker hub"
         }
     }
     parser = argparse.ArgumentParser(
