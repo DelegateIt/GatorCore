@@ -169,14 +169,16 @@ class Create(object):
 
 class Package(object):
     @staticmethod
-    def package_env(apisource, delgtsource, config, outfile):
+    def package_env(apisource, delgtsource, apiconfig, delgtconfig, outfile):
         with tempfile.TemporaryDirectory() as tempdir:
             execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
             # execute(["rm", "-rf", os.path.join(tempdir, "apisource", ".git")])
             # execute(["rm", "-rf", os.path.join(tempdir, "delgtsource", ".git")])
             execute_no_fail(["cp", "-R", delgtsource, os.path.join(tempdir, "delgtsource")])
-            execute_no_fail(["cp", config,
+            execute_no_fail(["cp", apiconfig,
                     os.path.join(tempdir, "apisource", "aws-prod-config.json")])
+            execute_no_fail(["cp", delgtconfig,
+                    os.path.join(tempdir, "delgtsource", "www", "js", "config.js")])
             execute_no_fail(["cp", "Dockerrun.aws.json", tempdir])
             execute_no_fail(["zip", "-rJ", os.path.join(os.getcwd(), outfile),
                     "apisource",
@@ -192,12 +194,14 @@ class Package(object):
                 help="The source directory for the api")
         parser.add_argument("-d", "--delegator", required=True,
                 help="The source directory for the delegator server")
-        parser.add_argument("-c", "--config", required=True,
-                help="The config file to use")
+        parser.add_argument("-c", "--aconfig", required=True,
+                help="The config file for the api to use")
+        parser.add_argument("-s", "--dconfig", required=True,
+                help="The config file for the delegator client to use")
         parser.add_argument("-o", "--output", required=True,
                 help="The name of the packaged zip file")
         args = parser.parse_args()
-        Package.package_env(args.api, args.delegator, args.config, args.output)
+        Package.package_env(args.api, args.delegator, args.aconfig, args.dconfig, args.output)
 
 class DockerPush(object):
     @staticmethod
