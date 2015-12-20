@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
+import sys
+REQUIRED_PYTHON = (3, 4, 0)
+if sys.version_info < REQUIRED_PYTHON:
+    print("Please upgrade your version of python to at least v{}.{}.{}".format(*REQUIRED_PYTHON))
+    exit(1)
+
+
 import os
 import argparse
 import subprocess
-import sys
 import tempfile
 
 USE_DOCKER_IO = False
