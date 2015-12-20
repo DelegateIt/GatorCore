@@ -168,23 +168,43 @@ class Create(object):
             Create.setup_delgt_container(abs_source, args.no_cache)
 
 class Package(object):
+
     @staticmethod
-    def package_env(apisource, delgtsource, apiconfig, delgtconfig, outfile):
+    def package_lambda(apisource, apiconfig, outdir, tempdir):
+        print("Packaging lambda")
+        execute_no_fail(["cp", "-R", os.path.join(apisource, "notify"), tempdir])
+        execute_no_fail(["cp", apiconfig, os.path.join(tempdir, "notify", "config.json")])
+        execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gatorlambda.zip"),
+                "lambda.js",
+                "gator.js",
+                "config.json"],
+                cwd=os.path.join(tempdir, "notify"))
+
+    @staticmethod
+    def package_fullapi(apisource, delgtsource, apiconfig, delgtconfig, outdir, tempdir):
+        print("Packaging fullapi")
+        execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
+        execute_no_fail(["cp", "-R", delgtsource, os.path.join(tempdir, "delgtsource")])
+        execute_no_fail(["cp", apiconfig,
+                os.path.join(tempdir, "apisource", "aws-prod-config.json")])
+        execute_no_fail(["cp", delgtconfig,
+                os.path.join(tempdir, "delgtsource", "www", "js", "config.js")])
+        execute_no_fail(["cp", "Dockerrun.aws.json", tempdir])
+        execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gatorfullapi.zip"),
+                "apisource",
+                "delgtsource",
+                "Dockerrun.aws.json",
+                "-x", "*/.git/*", "*/__pycache__/*"], cwd=tempdir)
+
+    @staticmethod
+    def package_all(apisource, delgtsource, apiconfig, delgtconfig, outdir):
         with tempfile.TemporaryDirectory() as tempdir:
-            execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
-            # execute(["rm", "-rf", os.path.join(tempdir, "apisource", ".git")])
-            # execute(["rm", "-rf", os.path.join(tempdir, "delgtsource", ".git")])
-            execute_no_fail(["cp", "-R", delgtsource, os.path.join(tempdir, "delgtsource")])
-            execute_no_fail(["cp", apiconfig,
-                    os.path.join(tempdir, "apisource", "aws-prod-config.json")])
-            execute_no_fail(["cp", delgtconfig,
-                    os.path.join(tempdir, "delgtsource", "www", "js", "config.js")])
-            execute_no_fail(["cp", "Dockerrun.aws.json", tempdir])
-            execute_no_fail(["zip", "-rJ", os.path.join(os.getcwd(), outfile),
-                    "apisource",
-                    "delgtsource",
-                    "Dockerrun.aws.json",
-                    "-x", "*/.git/*", "*/__pycache__/*"], cwd=tempdir)
+            api_temp = os.path.join(tempdir, "api")
+            lambda_temp = os.path.join(tempdir, "lambda")
+            execute_no_fail(["mkdir", api_temp])
+            execute_no_fail(["mkdir", lambda_temp])
+            Package.package_fullapi(apisource, delgtsource, apiconfig, delgtconfig, outdir, api_temp)
+            Package.package_lambda(apisource, apiconfig, outdir, lambda_temp)
 
     @staticmethod
     def parse_args():
@@ -198,10 +218,10 @@ class Package(object):
                 help="The config file for the api to use")
         parser.add_argument("-s", "--dconfig", required=True,
                 help="The config file for the delegator client to use")
-        parser.add_argument("-o", "--output", required=True,
-                help="The name of the packaged zip file")
+        parser.add_argument("-o", "--outdir", default=".",
+                help="The folder to store the zip files")
         args = parser.parse_args()
-        Package.package_env(args.api, args.delegator, args.aconfig, args.dconfig, args.output)
+        Package.package_all(args.api, args.delegator, args.aconfig, args.dconfig, args.outdir)
 
 class DockerPush(object):
     @staticmethod
