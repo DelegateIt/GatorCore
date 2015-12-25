@@ -8,8 +8,15 @@ RUN apt-get upgrade -y
 # Production packages #
 #######################
 
+
 RUN apt-get install -y\
-    python3-pip
+    python3-pip\
+    nodejs\
+    npm
+
+RUN ln -s /usr/bin/nodejs /usr/bin/node
+ENV NODE_PATH=/usr/local/lib/node_modules
+RUN npm install -g aws-sdk socket.io express body-parser socket.io-client
 
 #pip is installed but needs to upgraded because the apt repo is behind
 RUN pip3 install --upgrade pip
@@ -19,7 +26,12 @@ RUN pip install\
     boto\
     jsonpickle\
     requests\
-    nose
+    nose\
+    Flask\
+    eventlet\
+    gunicorn\
+    stripe\
+    twilio
 
 ##################
 # Configurations #

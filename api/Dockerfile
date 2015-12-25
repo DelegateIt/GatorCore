@@ -1,13 +1,6 @@
 FROM delegateit/gatbase
 MAINTAINER Austin Middleton
 
-RUN pip install\
-    Flask\
-    eventlet\
-    gunicorn\
-    stripe\
-    twilio
-
 ADD source /var/gator/api
 WORKDIR /var/gator/api
 USER gator

@@ -116,11 +116,12 @@ class Create(object):
                 net="host")
 
     @staticmethod
-    def setup_db_container(no_cache):
+    def setup_db_container(volume, no_cache):
         Create.kill_and_delete("db")
         Create.create_image("gatdb", "db", no_cache)
         Create.create_container("db", "gatdb",
                 ports=[[8040, 8040]],
+                volumes=[[volume, "/var/gator/api"]],
                 net="host")
 
     @staticmethod
@@ -140,14 +141,9 @@ class Create(object):
                 help="the name of the container to create.")
         parser.add_argument("--no-cache", default=False, action="store_true", dest="no_cache",
                 help="Do not use docker's cache when building images.")
-        parser.add_argument("source", default="", nargs="?",
-                help="the location of the project's source code. Required for all except for the `db` container")
+        parser.add_argument("source",
+                help="the location of the project's source code.")
         args = parser.parse_args()
-
-        if args.name != "db" and args.source == "":
-            parser.print_help()
-            print("\n\n'{}' requires the path to the source files".format(args.name))
-            exit(1)
 
         abs_source = ""
         if args.source != "":
@@ -161,7 +157,7 @@ class Create(object):
         if args.name == "api" or args.name == "fullapi":
             Create.setup_api_container(abs_source, args.no_cache)
         if args.name == "db" or args.name == "fullapi":
-            Create.setup_db_container(args.no_cache)
+            Create.setup_db_container(abs_source, args.no_cache)
         if args.name == "ntfy" or args.name == "fullapi":
             Create.setup_ntfy_container(abs_source, args.no_cache)
         if args.name == "delgt":
