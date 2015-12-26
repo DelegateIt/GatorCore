@@ -16,7 +16,13 @@ RUN apt-get install -y\
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 ENV NODE_PATH=/usr/local/lib/node_modules
-RUN npm install -g aws-sdk socket.io express body-parser socket.io-client
+RUN npm install -g\
+    aws-sdk\
+    socket.io\
+    express\
+    body-parser\
+    socket.io-client\
+    mocha
 
 #pip is installed but needs to upgraded because the apt repo is behind
 RUN pip3 install --upgrade pip
