@@ -14,4 +14,5 @@ RUN chown -R gator:gator /var/gator/db
 
 USER gator
 EXPOSE 8040
-ENTRYPOINT ["java", "-Djava.library.path=./DynamoDBLocal_lib", "-jar", "DynamoDBLocal.jar", "-sharedDb", "-delayTransientStatuses", "-port", "8040"]
+ENV GATOR_CONFIG_PATH=/var/gator/api/local-config.json
+ENTRYPOINT ["/bin/sh", "/var/gator/db/start.sh"]
