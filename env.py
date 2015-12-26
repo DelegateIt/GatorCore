@@ -112,7 +112,6 @@ class Create(object):
         Create.create_container("ntfy", "delegateit/gatntfy",
                 ports=[[8060, 8060]],
                 volumes=[[volume, "/var/gator/api"]],
-                tty=True,
                 net="host")
 
     @staticmethod
