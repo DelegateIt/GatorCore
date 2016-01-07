@@ -17,7 +17,7 @@
   "containerDefinitions": [
     {
       "name": "api",
-      "image": "delegateit/gatapi",
+      "image": "delegateit/gatapi:v1.10",
       "environment": [
         {
           "name": "GATOR_CONFIG_PATH",
@@ -46,7 +46,7 @@
     },
     {
       "name": "ntfy",
-      "image": "delegateit/gatntfy",
+      "image": "delegateit/gatntfy:v1.10",
       "environment": [
         {
           "name": "GATOR_CONFIG_PATH",
@@ -75,7 +75,7 @@
     },
     {
       "name": "delgt",
-      "image": "delegateit/gatweb",
+      "image": "delegateit/gatweb:v1.10",
       "essential": true,
       "memory": 128,
       "portMappings": [
