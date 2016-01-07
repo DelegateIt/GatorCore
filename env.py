@@ -126,11 +126,10 @@ class Create(object):
     @staticmethod
     def setup_delgt_container(volume, no_cache):
         Create.kill_and_delete("delgt")
-        Create.create_image("delegateit/gatdelgt", "delegator", no_cache)
-        Create.create_container("delgt", "delegateit/gatdelgt",
-                ports=[[8080, 8080]],
-                volumes=[[volume, "/var/gator/delegator"]],
-                net="host")
+        Create.create_image("delegateit/gatweb", "web", no_cache)
+        Create.create_container("delgt", "delegateit/gatweb",
+                ports=[[8080, 80]],
+                volumes=[[os.path.join(volume, "www"), "/usr/share/nginx/html"]])
 
     @staticmethod
     def parse_args():
@@ -232,7 +231,7 @@ class DockerPush(object):
                 "delegateit/gatbase",
                 "delegateit/gatapi",
                 "delegateit/gatntfy",
-                "delegateit/gatdelgt"])
+                "delegateit/gatweb"])
 
 
 if __name__ == "__main__":

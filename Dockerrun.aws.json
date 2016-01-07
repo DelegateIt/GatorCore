@@ -10,7 +10,7 @@
     {
       "name": "delgtsource",
       "host": {
-        "sourcePath": "/var/app/current/delgtsource"
+        "sourcePath": "/var/app/current/delgtsource/www"
       }
     }
   ],
@@ -75,19 +75,19 @@
     },
     {
       "name": "delgt",
-      "image": "delegateit/gatdelgt",
+      "image": "delegateit/gatweb",
       "essential": true,
       "memory": 128,
       "portMappings": [
         {
           "hostPort": 8080,
-          "containerPort": 8080
+          "containerPort": 80
         }
       ],
       "mountPoints": [
         {
           "sourceVolume": "delgtsource",
-          "containerPath": "/var/gator/delegator",
+          "containerPath": "/usr/share/nginx/html",
           "readOnly": true
         }
       ],
