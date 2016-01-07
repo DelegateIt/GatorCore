@@ -219,19 +219,24 @@ class Package(object):
 
 class DockerPush(object):
     @staticmethod
-    def docker_push_list(image_list):
+    def docker_push_list(image_list, tag=None):
         for image in image_list:
+            if tag is not None:
+                execute_no_fail([DOCKER_COMMAND, "tag", image + ":latest", image + ":" + tag])
             execute_no_fail([DOCKER_COMMAND, "push", image])
 
     @staticmethod
     def parse_args():
         parser = argparse.ArgumentParser(
                 description="Pushes all the production images to docker hub")
+        parser.add_argument("-t", "--tag",
+                help="The tag to attach to the images if any")
+        args = parser.parse_args()
         DockerPush.docker_push_list([
                 "delegateit/gatbase",
                 "delegateit/gatapi",
                 "delegateit/gatntfy",
-                "delegateit/gatweb"])
+                "delegateit/gatweb"], args.tag)
 
 
 if __name__ == "__main__":
