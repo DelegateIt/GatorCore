@@ -15,6 +15,8 @@ To stat the api run `env.py start`. To stop it run `env.py stop`. The environmen
 ### Troubleshooting
 Running "env.py create ..." will sometimes hang on the `Setting up ca-certificates-java (20130815ubuntu1) ...` command. This is a known docker bug but in the meantime setting your CPU count to 2 in the virtualbox config is a workaround.
 
+Sometimes "env.py create ..." will fail when running "apt-get upgrade" with a bunch of 404 errors. This is a result of "apt-get update" having an invalid cache. To fix this run the create action with the `--no-cache` flag. 
+
 Ensure you have python3 installed, this can be easily checked by running `python3 -v`.
 
 If you don't have internet access from the container you will need to get a shell and replace the default DNS entry in /etc/resolv.conf to Google's DNS (8.8.8.8)
