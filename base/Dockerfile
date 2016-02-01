@@ -37,7 +37,8 @@ RUN pip install\
     eventlet\
     gunicorn\
     stripe\
-    twilio
+    twilio\
+    pylint
 
 ##################
 # Configurations #
