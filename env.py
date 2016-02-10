@@ -175,29 +175,25 @@ class Package(object):
                 cwd=os.path.join(tempdir, "notify"))
 
     @staticmethod
-    def package_fullapi(apisource, delgtsource, apiconfig, delgtconfig, outdir, tempdir):
+    def package_fullapi(apisource, apiconfig, outdir, tempdir):
         print("Packaging fullapi")
         execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
-        execute_no_fail(["cp", "-R", delgtsource, os.path.join(tempdir, "delgtsource")])
         execute_no_fail(["cp", apiconfig,
                 os.path.join(tempdir, "apisource", "aws-prod-config.json")])
-        execute_no_fail(["cp", delgtconfig,
-                os.path.join(tempdir, "delgtsource", "www", "js", "config.js")])
         execute_no_fail(["cp", "Dockerrun.aws.json", tempdir])
         execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gatorfullapi.zip"),
                 "apisource",
-                "delgtsource",
                 "Dockerrun.aws.json",
                 "-x", "*/.git/*", "*/__pycache__/*"], cwd=tempdir)
 
     @staticmethod
-    def package_all(apisource, delgtsource, apiconfig, delgtconfig, outdir):
+    def package_all(apisource, apiconfig, outdir):
         with tempfile.TemporaryDirectory() as tempdir:
             api_temp = os.path.join(tempdir, "api")
             lambda_temp = os.path.join(tempdir, "lambda")
             execute_no_fail(["mkdir", api_temp])
             execute_no_fail(["mkdir", lambda_temp])
-            Package.package_fullapi(apisource, delgtsource, apiconfig, delgtconfig, outdir, api_temp)
+            Package.package_fullapi(apisource, apiconfig, outdir, api_temp)
             Package.package_lambda(apisource, apiconfig, outdir, lambda_temp)
 
     @staticmethod
@@ -206,16 +202,12 @@ class Package(object):
                 description="Packages the environment for elastic beanstalk in a zip")
         parser.add_argument("-a", "--api", required=True,
                 help="The source directory for the api")
-        parser.add_argument("-d", "--delegator", required=True,
-                help="The source directory for the delegator server")
         parser.add_argument("-c", "--aconfig", required=True,
                 help="The config file for the api to use")
-        parser.add_argument("-s", "--dconfig", required=True,
-                help="The config file for the delegator client to use")
         parser.add_argument("-o", "--outdir", default=".",
                 help="The folder to store the zip files")
         args = parser.parse_args()
-        Package.package_all(args.api, args.delegator, args.aconfig, args.dconfig, args.outdir)
+        Package.package_all(args.api, args.aconfig, args.outdir)
 
 class DockerPush(object):
     @staticmethod

@@ -6,12 +6,6 @@
       "host": {
         "sourcePath": "/var/app/current/apisource"
       }
-    },
-    {
-      "name": "delgtsource",
-      "host": {
-        "sourcePath": "/var/app/current/delgtsource/www"
-      }
     }
   ],
   "containerDefinitions": [
@@ -61,25 +55,6 @@
         {
           "sourceVolume": "apisource",
           "containerPath": "/var/gator/api",
-          "readOnly": true
-        }
-      ]
-    },
-    {
-      "name": "delgt",
-      "image": "delegateit/gatweb:v1.11.0",
-      "essential": true,
-      "memory": 128,
-      "portMappings": [
-        {
-          "hostPort": 8080,
-          "containerPort": 80
-        }
-      ],
-      "mountPoints": [
-        {
-          "sourceVolume": "delgtsource",
-          "containerPath": "/usr/share/nginx/html",
           "readOnly": true
         }
       ]
