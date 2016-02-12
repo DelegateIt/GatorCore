@@ -3,7 +3,7 @@
 import os
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.layer1 import DynamoDBConnection
-from boto.dynamodb2.fields import HashKey, GlobalAllIndex
+from boto.dynamodb2.fields import HashKey, GlobalAllIndex, RangeKey
 
 def init_connection():
     host = "localhost"
@@ -56,18 +56,26 @@ def create_tables():
         ],
         connection=conn
     )
-    Table.create("DelegateIt_Transactions",
+    Table.create("DelegateIt_Transactions_CD",
         schema=[
-            HashKey("uuid"),
+            HashKey("customer_uuid"),
+            RangeKey("timestamp", "N")
         ],
         global_indexes=[
             GlobalAllIndex("status-index", parts=[
                 HashKey("status"),
             ]),
+            GlobalAllIndex("delegator_uuid-index", parts=[
+                HashKey("delegator_uuid"),
+            ]),
         ],
         connection=conn
     )
     Table.create("DelegateIt_Handlers", schema=[HashKey("ip_address")], connection=conn)
+
+    tables = conn.list_tables()["TableNames"]
+    for name in tables:
+        print("Describing", name, "\n", Table(name, connection=conn).describe())
 
 if __name__ == "__main__":
     create_tables()
