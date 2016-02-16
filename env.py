@@ -166,6 +166,7 @@ class Package(object):
     @staticmethod
     def package_lambda(apisource, apiconfig, outdir, tempdir):
         print("Packaging lambda")
+        execute(["rm", os.path.join(outdir, "gatorlambda.zip")])
         execute_no_fail(["cp", "-R", os.path.join(apisource, "notify"), tempdir])
         execute_no_fail(["cp", apiconfig, os.path.join(tempdir, "notify", "config.json")])
         execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gatorlambda.zip"),
@@ -175,39 +176,56 @@ class Package(object):
                 cwd=os.path.join(tempdir, "notify"))
 
     @staticmethod
-    def package_fullapi(apisource, apiconfig, outdir, tempdir):
-        print("Packaging fullapi")
+    def package_api(apisource, outdir, tempdir):
+        print("Packaging api")
+        execute(["rm", os.path.join(outdir, "gator-api.zip")])
         execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
-        execute_no_fail(["cp", apiconfig,
-                os.path.join(tempdir, "apisource", "aws-prod-config.json")])
-        execute_no_fail(["cp", "Dockerrun.aws.json", tempdir])
-        execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gatorfullapi.zip"),
+        execute_no_fail(["cp", os.path.join("api", "Dockerrun.aws.json"), tempdir])
+        execute_no_fail(["cp", os.path.join("api", "env.yaml"), tempdir])
+        execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gator-api.zip"),
                 "apisource",
                 "Dockerrun.aws.json",
+                "env.yaml",
+                "-x", "*/.git/*", "*/__pycache__/*"], cwd=tempdir)
+
+    @staticmethod
+    def package_notify(apisource, outdir, tempdir):
+        print("Packaging notify")
+        execute(["rm", os.path.join(outdir, "gator-notify.zip")])
+        execute_no_fail(["cp", "-R", apisource, os.path.join(tempdir, "apisource")])
+        execute_no_fail(["cp", os.path.join("notify", "Dockerrun.aws.json"), tempdir])
+        execute_no_fail(["cp", os.path.join("notify", "env.yaml"), tempdir])
+        execute_no_fail(["zip", "-r", os.path.join(os.getcwd(), outdir, "gator-notify.zip"),
+                "apisource",
+                "Dockerrun.aws.json",
+                "env.yaml",
                 "-x", "*/.git/*", "*/__pycache__/*"], cwd=tempdir)
 
     @staticmethod
     def package_all(apisource, apiconfig, outdir):
         with tempfile.TemporaryDirectory() as tempdir:
             api_temp = os.path.join(tempdir, "api")
+            notify_temp = os.path.join(tempdir, "notify")
             lambda_temp = os.path.join(tempdir, "lambda")
             execute_no_fail(["mkdir", api_temp])
             execute_no_fail(["mkdir", lambda_temp])
-            Package.package_fullapi(apisource, apiconfig, outdir, api_temp)
+            execute_no_fail(["mkdir", notify_temp])
+            Package.package_api(apisource, outdir, api_temp)
+            Package.package_notify(apisource, outdir, notify_temp)
             Package.package_lambda(apisource, apiconfig, outdir, lambda_temp)
 
     @staticmethod
     def parse_args():
         parser = argparse.ArgumentParser(
                 description="Packages the environment for elastic beanstalk in a zip")
-        parser.add_argument("-a", "--api", required=True,
+        parser.add_argument("api",
                 help="The source directory for the api")
-        parser.add_argument("-c", "--aconfig", required=True,
-                help="The config file for the api to use")
+        parser.add_argument("config",
+                help="the config file to use")
         parser.add_argument("-o", "--outdir", default=".",
                 help="The folder to store the zip files")
         args = parser.parse_args()
-        Package.package_all(args.api, args.aconfig, args.outdir)
+        Package.package_all(args.api, args.config, args.outdir)
 
 class DockerPush(object):
     @staticmethod
