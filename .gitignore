@@ -2,8 +2,9 @@
 *.pyc
 __pycache__
 
-gatorfullapi.zip
-gatorlambda.zip
+gator-api.zip
+gator-notify.zip
+gator-lambda.zip
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

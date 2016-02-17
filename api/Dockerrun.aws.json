@@ -1,18 +1,32 @@
 {
-  "AWSEBDockerrunVersion": 1,
-  "Image": {
-    "Name": "delegateit/gatapi:v1.11.0",
-    "Update": "true"
-  },
-  "Ports": [
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
     {
-      "ContainerPort": "8000"
+      "name": "apisource",
+      "host": {
+        "sourcePath": "/var/app/current/apisource"
+      }
     }
   ],
-  "Volumes": [
+  "containerDefinitions": [
     {
-      "HostDirectory": "/var/app/current/apisource",
-      "ContainerDirectory": "/var/gator/api"
+      "name": "api",
+      "image": "delegateit/gatapi:v1.11.0",
+      "essential": true,
+      "memory": 512,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 8000
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "apisource",
+          "containerPath": "/var/gator/api",
+          "readOnly": true
+        }
+      ]
     }
   ]
 }
