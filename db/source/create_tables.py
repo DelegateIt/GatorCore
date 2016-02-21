@@ -72,6 +72,15 @@ def create_tables():
         connection=conn
     )
     Table.create("DelegateIt_Handlers", schema=[HashKey("ip_address")], connection=conn)
+    Table.create("DelegateIt_PushEndpoints",
+        schema=[HashKey("device_id")],
+        global_indexes=[
+           GlobalAllIndex("customer_uuid-index", parts=[
+              HashKey("customer_uuid"),
+           ])
+        ],
+        connection=conn
+    )
 
     tables = conn.list_tables()["TableNames"]
     for name in tables:
