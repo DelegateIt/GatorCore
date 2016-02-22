@@ -11,7 +11,7 @@
   "containerDefinitions": [
     {
       "name": "ntfy",
-      "image": "delegateit/gatntfy:v1.11.0",
+      "image": "delegateit/gatntfy:v1.13.0",
       "essential": true,
       "memory": 512,
       "portMappings": [

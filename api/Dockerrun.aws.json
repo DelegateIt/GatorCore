@@ -11,7 +11,7 @@
   "containerDefinitions": [
     {
       "name": "api",
-      "image": "delegateit/gatapi:v1.11.0",
+      "image": "delegateit/gatapi:v1.13.0",
       "essential": true,
       "memory": 512,
       "portMappings": [
