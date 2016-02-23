@@ -252,6 +252,44 @@ class DockerPush(object):
                 "delegateit/gatntfy",
                 "delegateit/gatweb"], args.tag)
 
+class Deploy(object):
+
+    @staticmethod
+    def eb_deploy(modules, eb_group):
+        args = ["eb", "deploy", "--env-group-suffix", eb_group, "--modules"]
+        args.extend(modules)
+        execute(args)
+
+    @staticmethod
+    def deploy(apipath, apiconfig, eb_group):
+        Package.package_all(apipath, apiconfig, ".")
+        Deploy.eb_deploy(["api", "notify"], eb_group)
+
+    @staticmethod
+    def parse_args():
+        types = {
+            "test": {
+                "config": "aws-test-config.json",
+                "eb-group": "test"
+            },
+            "live": {
+                "config": "aws-prod-config.json",
+                "eb-group": "live"
+            }
+        }
+        parser = argparse.ArgumentParser(
+                description="Deploys the code to elastic beanstalk")
+        parser.add_argument("deploy_type", choices=types.keys(),
+                help="The type of deployment")
+        parser.add_argument("apipath",
+                help="The path to the api source code")
+        args = parser.parse_args()
+
+        deploy_type = types[args.deploy_type]
+        apiconfig = os.path.join(args.apipath, deploy_type["config"])
+        Deploy.deploy(args.apipath, apiconfig, deploy_type["eb-group"])
+
+
 if __name__ == "__main__":
     actions = {
         "create": {
@@ -273,6 +311,10 @@ if __name__ == "__main__":
         "dockerpush": {
             "parse": DockerPush.parse_args,
             "description": "Pushes all the production images to docker hub"
+        },
+        "deploy": {
+            "parse": Deploy.parse_args,
+            "description": "Deploys the code to elastic beanstalk"
         }
     }
     parser = argparse.ArgumentParser(
