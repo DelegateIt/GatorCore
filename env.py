@@ -255,6 +255,26 @@ class DockerPush(object):
                 "delegateit/gatntfy",
                 "delegateit/gatweb"], args.tag)
 
+class Health(object):
+
+    def display(eb_group):
+        cmd =  "tmux new-session -d -s eb-health 'cd api && eb health gator-api-" + eb_group  + " --refresh';"
+        cmd += "tmux split-window -v 'cd notify && eb health gator-notify-" + eb_group + " --refresh';"
+        cmd += "tmux -2 attach-session -d;"
+        execute(cmd, shell=True)
+
+
+    @staticmethod
+    def parse_args():
+        env_types = ["live", "test"]
+        parser = argparse.ArgumentParser(
+                description="Displays the health of the elastic beanstalk environments")
+        parser.add_argument("eb_group", choices=env_types,
+                help="The type of environment to monitor")
+        args = parser.parse_args()
+        Health.display(args.eb_group)
+
+
 class Deploy(object):
 
     @staticmethod
@@ -334,6 +354,10 @@ if __name__ == "__main__":
         "deploy": {
             "parse": Deploy.parse_args,
             "description": "Deploys the code to elastic beanstalk"
+        },
+        "health": {
+            "parse": Health.parse_args,
+            "description": "Displays the health for the elastic beanstalk environment"
         }
     }
     parser = argparse.ArgumentParser(
