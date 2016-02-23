@@ -16,13 +16,16 @@ USE_DOCKER_IO = False
 DOCKER_COMMAND = "docker.io" if USE_DOCKER_IO else "docker"
 
 def execute_no_fail(command, *args, **kwargs):
-    return_code = execute(command, *args, **kwargs)
-    if return_code != 0:
-        raise Exception("The command {} returned {}".format(command, return_code))
+    result = execute(command, *args, **kwargs)
+    if result[0] != 0:
+        raise Exception("The command {} returned {}".format(command, result[0]))
+    return result
 
-def execute(command, cwd=None, shell=False):
+def execute(command, cwd=None, shell=False, stdout=None, stderr=None):
     print("EXECUTING:", " ".join(command))
-    return subprocess.Popen(command, cwd=cwd, shell=shell).wait()
+    proc = subprocess.Popen(command, cwd=cwd, shell=shell, stdout=stdout, stderr=stderr)
+    (out, err) = proc.communicate()
+    return proc.wait(), out, err
 
 class Start(object):
 
@@ -255,15 +258,29 @@ class DockerPush(object):
 class Deploy(object):
 
     @staticmethod
-    def eb_deploy(modules, eb_group):
-        args = ["eb", "deploy", "--env-group-suffix", eb_group, "--modules"]
-        args.extend(modules)
-        execute(args)
+    def get_commit_hash(apipath):
+        print("Making sure api directory has a committed HEAD")
+        execute_no_fail(["git", "diff", "--exit-code", "--stat"], cwd=apipath)
+        binary = execute_no_fail(["git", "rev-parse", "HEAD"], cwd=apipath, stdout=subprocess.PIPE)[1]
+        return binary.decode("utf-8").strip("\n")
 
     @staticmethod
-    def deploy(apipath, apiconfig, eb_group):
+    def eb_deploy(modules, eb_group, version_tag=None, version_message=None):
+        for m in modules:
+            env_name = "gator-" + m + "-" + eb_group
+            args = ["eb", "deploy", env_name, "-nh"]
+            if version_tag is not None:
+                args.extend(["--label", env_name + "-" + version_tag])
+            if version_message is not None:
+                args.extend(["--message", version_message])
+            execute(args, cwd=os.path.join(".", m))
+
+    @staticmethod
+    def deploy(apipath, apiconfig, eb_group, version_tag):
         Package.package_all(apipath, apiconfig, ".")
-        Deploy.eb_deploy(["api", "notify"], eb_group)
+        commit_hash = Deploy.get_commit_hash(apipath)
+        print("Deploying commit hash", commit_hash)
+        Deploy.eb_deploy(["api", "notify"], eb_group, version_tag, commit_hash)
 
     @staticmethod
     def parse_args():
@@ -281,13 +298,15 @@ class Deploy(object):
                 description="Deploys the code to elastic beanstalk")
         parser.add_argument("deploy_type", choices=types.keys(),
                 help="The type of deployment")
+        parser.add_argument("version_tag",
+                help="The version label to apply. Ex: 'v1.12.2-rc0'")
         parser.add_argument("apipath",
                 help="The path to the api source code")
         args = parser.parse_args()
 
         deploy_type = types[args.deploy_type]
         apiconfig = os.path.join(args.apipath, deploy_type["config"])
-        Deploy.deploy(args.apipath, apiconfig, deploy_type["eb-group"])
+        Deploy.deploy(args.apipath, apiconfig, deploy_type["eb-group"], args.version_tag)
 
 
 if __name__ == "__main__":
