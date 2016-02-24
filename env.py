@@ -23,6 +23,7 @@ def execute_no_fail(command, *args, **kwargs):
 
 def execute(command, cwd=None, shell=False, stdout=None, stderr=None):
     print("EXECUTING:", " ".join(command))
+    # return 0, "".encode("utf-8"), "".encode("utf-8")
     proc = subprocess.Popen(command, cwd=cwd, shell=shell, stdout=stdout, stderr=stderr)
     (out, err) = proc.communicate()
     return proc.wait(), out, err
@@ -296,22 +297,30 @@ class Deploy(object):
             execute(args, cwd=os.path.join(".", m))
 
     @staticmethod
-    def deploy(apipath, apiconfig, eb_group, version_tag):
+    def lambda_deploy(lambda_name, lambda_path):
+        execute_no_fail(["aws", "lambda", "update-function-code", "--function-name", lambda_name, "--zip-file", "fileb://" + lambda_path, "--publish"])
+
+
+    @staticmethod
+    def deploy(apipath, apiconfig, eb_group, version_tag, lambda_name):
         Package.package_all(apipath, apiconfig, ".")
         commit_hash = Deploy.get_commit_hash(apipath)
         print("Deploying commit hash", commit_hash)
         Deploy.eb_deploy(["api", "notify"], eb_group, version_tag, commit_hash)
+        Deploy.lambda_deploy(lambda_name, "./gator-lambda.zip")
 
     @staticmethod
     def parse_args():
         types = {
             "test": {
                 "config": "aws-test-config.json",
-                "eb-group": "test"
+                "eb-group": "test",
+                "lambda": "TestTransactionChange"
             },
             "live": {
                 "config": "aws-prod-config.json",
-                "eb-group": "live"
+                "eb-group": "live",
+                "lambda": "TransactionUpdate"
             }
         }
         parser = argparse.ArgumentParser(
@@ -326,7 +335,8 @@ class Deploy(object):
 
         deploy_type = types[args.deploy_type]
         apiconfig = os.path.join(args.apipath, deploy_type["config"])
-        Deploy.deploy(args.apipath, apiconfig, deploy_type["eb-group"], args.version_tag)
+        Deploy.deploy(args.apipath, apiconfig, deploy_type["eb-group"],
+                      args.version_tag, deploy_type["lambda"])
 
 
 if __name__ == "__main__":
