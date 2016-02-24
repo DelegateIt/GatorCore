@@ -67,6 +67,7 @@ def create_tables():
             ]),
             GlobalAllIndex("delegator_uuid-index", parts=[
                 HashKey("delegator_uuid"),
+                RangeKey("timestamp", "N")
             ]),
         ],
         connection=conn
