@@ -126,18 +126,9 @@ class Create(object):
                 ports=[[8040, 8040]],
                 volumes=[[volume, "/var/gator/api"]],
                 net="host")
-
-    @staticmethod
-    def setup_delgt_container(volume, no_cache):
-        Create.kill_and_delete("delgt")
-        Create.create_image("delegateit/gatweb", "web", no_cache)
-        Create.create_container("delgt", "delegateit/gatweb",
-                ports=[[8080, 80]],
-                volumes=[[os.path.join(volume, "www"), "/usr/share/nginx/html"]])
-
     @staticmethod
     def parse_args():
-        containers = ["api", "db", "delgt", "ntfy", "fullapi"]
+        containers = ["api", "db", "ntfy", "fullapi"]
         parser = argparse.ArgumentParser(description="docker container and image creation for DelegateIt")
         parser.add_argument("name", choices=containers,
                 help="the name of the container to create.")
@@ -162,8 +153,6 @@ class Create(object):
             Create.setup_db_container(abs_source, args.no_cache)
         if args.name == "ntfy" or args.name == "fullapi":
             Create.setup_ntfy_container(abs_source, args.no_cache)
-        if args.name == "delgt":
-            Create.setup_delgt_container(abs_source, args.no_cache)
 
 class Package(object):
 
@@ -253,8 +242,7 @@ class DockerPush(object):
         DockerPush.docker_push_list([
                 "delegateit/gatbase",
                 "delegateit/gatapi",
-                "delegateit/gatntfy",
-                "delegateit/gatweb"], args.tag)
+                "delegateit/gatntfy"], args.tag)
 
 class Health(object):
 
